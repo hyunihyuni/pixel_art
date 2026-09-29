@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>픽셀아트 그리기</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .title {
+            text-align: center;
+            color: #667eea;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        /* 탭 메뉴 */
+        .tab-menu {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 10px 10px 0 0;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            background: #f3f4f6;
+            color: #666;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background: #e5e7eb;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        /* 탭 컨텐츠 */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 설명 페이지 */
+        .explanation {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .explanation h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .explanation p {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .feature-card {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .feature-card .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .feature-card h3 {
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            color: #666;
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .pixel-demo {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .pixel-demo h3 {
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .demo-steps {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .demo-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .small-grid {
+            width: 60px;
+            height: 60px;
+            border: 1px solid #ccc;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: white;
+        }
+
+        .small-pixel {
+            background: #ff6b6b;
+            border: 1px solid #ddd;
+        }
+
+        .demo-box p {
+            font-size: 12px;
+            color: #666;
+            margin: 0;
+        }
+
+        .arrow {
+            font-size: 20px;
+            color: #667eea;
+        }
+
+        /* 컨트롤 섹션 */
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .control-label {
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+            min-width: 50px;
+        }
+
+        .size-btn {
+            background: #667eea;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .size-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .size-btn.active {
+            background: #764ba2;
+            box-shadow: 0 4px 10px rgba(118, 75, 162, 0.3);
+        }
+
+        .tool-btn {
+            background: #3b82f6;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .tool-btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .tool-btn.active {
+            background: #1d4ed8;
+            box-shadow: 0 4px 10px rgba(29, 78, 216, 0.3);
+        }
+
+        .color-palette {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .color-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .color-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .color-btn.active {
+            border-color: #333;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .toggle-btn {
+            background: #f59e0b;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+        }
+
+        .toggle-btn:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+
+        .toggle-btn.active {
+            background: #10b981;
+        }
+
+        .action-btn {
+            background: #ef4444;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+        }
+
+        .action-btn:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        /* 캔버스 영역 */
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            background: #f3f4f6;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        canvas {
+            border: 2px solid #333;
+            cursor: crosshair;
+            background: white;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            touch-action: none;
+        }
+
+        /* 하단 버튼 */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .info-text {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            margin-top: 15px;
+        }
+
+        .mission-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .mission-info h3 {
+            color: #1976d2;
+            margin-bottom: 8px;
+        }
+
+        .mission-info p {
+            color: #555;
+            font-size: 13px;
+        }
+
+        .color-legend {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .color-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+
+        .color-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+
+            .title {
+                font-size: 24px;
+                margin-bottom: 15px;
+            }
+
+            .tab-btn {
+                font-size: 11px;
+                padding: 8px 12px;
+            }
+
+            button {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+
+            .control-label {
+                font-size: 13px;
+            }
+
+            .color-btn {
+                width: 36px;
+                height: 36px;
+            }
+
+            .controls {
+                gap: 8px;
+            }
+
+            .tab-menu {
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">🎨 픽셀아트 그리기</div>
+
+        <!-- 탭 메뉴 -->
+        <div class="tab-menu">
+            <button class="tab-btn active" onclick="switchTab('explanation')">📖 픽셀이란?</button>
+            <button class="tab-btn" onclick="switchTab('mission1')">🎯 미션 1 • 하트</button>
+            <button class="tab-btn" onclick="switchTab('mission2')">🎯 미션 2 • 캐릭터</button>
+            <button class="tab-btn" onclick="switchTab('freeplay')">🎨 자유창작</button>
+        </div>
+
+        <!-- 탭 1: 설명 페이지 -->
+        <div id="explanation" class="tab-content active">
+            <div class="explanation">
+                <h2>📖 픽셀(Pixel)이란?</h2>
+                <p>화면 속 그림들은 사실 아주 작은 색깔 점들로 만들어져 있어요!</p>
+                <p>이 작은 점 하나하나를 <strong>픽셀(Pixel)</strong>이라고 불러요. 🔍</p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="icon">🔍</div>
+                        <h3>픽셀이 작으면</h3>
+                        <p>그림이 거칠고 네모나 보여요</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">✨</div>
+                        <h3>픽셀이 많으면</h3>
+                        <p>그림이 선명하고 부드러워요</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">📱</div>
+                        <h3>스마트폰 화면</h3>
+                        <p>수백만 개의 픽셀이 모여 있어요!</p>
+                    </div>
+                </div>
+
+                <div class="pixel-demo">
+                    <h3>💡 이 하트도 픽셀로 만들어진 그림이에요! 격자를 보면 색깔 점들이 보이죠</h3>
+                    <div class="demo-steps">
+                        <div class="demo-box">
+                            <div style="width: 80px; height: 80px; border: 2px solid #333; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); gap: 1px; background: white;">
+                                <div style="background: white; border: 1px solid #ddd;"></div>
+                                <div style="background: #ff6b6b; border: 1px solid #ddd;"></div>
+                                <div style="background: #ff6b6b; border: 1px solid #ddd;"></div>
+                                <div style="background: white; border: 1px solid #ddd;"></div>
+                                <div style="background: #ff6b6b; border: 1px solid #ddd;"></div>
+                                <div style="background: #ff6b6b; border: 1px solid #ddd;"></div>
+                                <div style="background: #ff6b6b; border: 1px solid #ddd;"></div>
+                                <div style="background: #ff6b6b; border: 1px solid #ddd;"></div>
+                                <div style="background: #ff6b6b; border: 1px solid #ddd;"></div>
+                                <div style="background: #ff6b6b; border: 1px solid #ddd;"></div>
+                                <div style="background: #ff6b6b; border: 1px solid #ddd;"></div>
+                                <div style="background: #ff6b6b; border: 1px solid #ddd;"></div>
+                                <div style="background: white; border: 1px solid #ddd;"></div>
+                                <div style="background: #ff6b6b; border: 1px solid #ddd;"></div>
+                                <div style="background: #ff6b6b; border: 1px solid #ddd;"></div>
+                                <div style="background: white; border: 1px solid #ddd;"></div>
+                            </div>
+                            <p>원래 크기</p>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="demo-box">
+                            <div style="width: 120px; height: 120px; border: 1px solid #333; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); background: white;">
+                                <div style="background: white;"></div>
+                                <div style="background: #ff6b6b;"></div>
+                                <div style="background: #ff6b6b;"></div>
+                                <div style="background: white;"></div>
+                                <div style="background: #ff6b6b;"></div>
+                                <div style="background: #ff6b6b;"></div>
+                                <div style="background: #ff6b6b;"></div>
+                                <div style="background: #ff6b6b;"></div>
+                                <div style="background: #ff6b6b;"></div>
+                                <div style="background: #ff6b6b;"></div>
+                                <div style="background: #ff6b6b;"></div>
+                                <div style="background: #ff6b6b;"></div>
+                                <div style="background: white;"></div>
+                                <div style="background: #ff6b6b;"></div>
+                                <div style="background: #ff6b6b;"></div>
+                                <div style="background: white;"></div>
+                            </div>
+                            <p>2배 확대 (픽셀이 보여요!)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 탭 2: 미션 1 -->
+        <div id="mission1" class="tab-content">
+            <div class="mission-info">
+                <h3>🎯 미션 1 • 색을 선택하고 숫자를 눌러요!</h3>
+                <p>아래에서 색을 선택한 다음, 그 번호가 적힌 칸을 클릭하세요!</p>
+            </div>
+
+            <div class="color-legend" style="gap: 20px;">
+                <button class="color-select-btn" onclick="selectMission1Color(1)" style="background: #ff6b6b; border: 3px solid transparent; padding: 10px 16px; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">1️⃣ 빨강</button>
+                <button class="color-select-btn" onclick="selectMission1Color(3)" style="background: #ffffff; border: 3px solid transparent; padding: 10px 16px; border-radius: 8px; color: #333; font-weight: bold; cursor: pointer;">3️⃣ 흰색</button>
+            </div>
+
+            <div id="mission1-feedback" style="text-align: center; font-size: 16px; font-weight: bold; color: #667eea; min-height: 30px; margin: 10px 0;"></div>
+
+            <div class="canvas-container">
+                <canvas id="canvas-mission1" width="320" height="320"></canvas>
+            </div>
+
+            <div class="button-group">
+                <button class="action-btn" onclick="clearMission1()">전체 지우기</button>
+                <button class="action-btn" onclick="resetMission1()">원래대로</button>
+                <button class="action-btn" style="background: #10b981;" onclick="downloadCanvasImage(canvasMission1, 'mission1.png')">📥 PNG 다운</button>
+            </div>
+
+            <div class="info-text">
+                먼저 색을 선택한 후 그 번호가 적힌 칸을 클릭하세요!
+            </div>
+        </div>
+
+        <!-- 탭 3: 미션 2 -->
+        <div id="mission2" class="tab-content">
+            <div class="mission-info">
+                <h3>🎯 미션 2 • 색을 선택하고 숫자를 눌러요!</h3>
+                <p>더 많은 색들을 사용해요! 색을 선택한 다음, 그 번호가 적힌 칸을 클릭하세요!</p>
+            </div>
+
+            <div class="color-legend" style="gap: 15px;">
+                <button class="color-select-btn" onclick="selectMission2Color(1)" style="background: #ff6b6b; border: 3px solid transparent; padding: 10px 16px; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">1️⃣ 빨강</button>
+                <button class="color-select-btn" onclick="selectMission2Color(2)" style="background: #000000; border: 3px solid transparent; padding: 10px 16px; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">2️⃣ 검정</button>
+                <button class="color-select-btn" onclick="selectMission2Color(4)" style="background: #FFA500; border: 3px solid transparent; padding: 10px 16px; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">4️⃣ 노랑</button>
+                <button class="color-select-btn" onclick="selectMission2Color(5)" style="background: #10b981; border: 3px solid transparent; padding: 10px 16px; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">5️⃣ 초록</button>
+            </div>
+
+            <div id="mission2-feedback" style="text-align: center; font-size: 16px; font-weight: bold; color: #667eea; min-height: 30px; margin: 10px 0;"></div>
+
+            <div class="canvas-container">
+                <canvas id="canvas-mission2" width="320" height="320"></canvas>
+            </div>
+
+            <div class="button-group">
+                <button class="action-btn" onclick="clearMission2()">전체 지우기</button>
+                <button class="action-btn" onclick="resetMission2()">원래대로</button>
+                <button class="action-btn" style="background: #10b981;" onclick="downloadCanvasImage(canvasMission2, 'mission2.png')">📥 PNG 다운</button>
+            </div>
+
+            <div class="info-text">
+                먼저 색을 선택한 후 그 번호가 적힌 칸을 클릭하세요!
+            </div>
+        </div>
+
+        <!-- 탭 4: 자유창작 -->
+        <div id="freeplay" class="tab-content">
+            <!-- 컨트롤 섹션 -->
+            <div class="controls">
+                <div class="control-group">
+                    <span class="control-label">크기:</span>
+                    <button class="size-btn" data-size="8" onclick="changeFreeplaySize(8)">8×8</button>
+                    <button class="size-btn active" data-size="16" onclick="changeFreeplaySize(16)">16×16</button>
+                    <button class="size-btn" data-size="32" onclick="changeFreeplaySize(32)">32×32</button>
+                </div>
+
+                <div class="control-group">
+                    <span class="control-label">색:</span>
+                    <div class="color-palette" id="colorPalette"></div>
+                </div>
+
+                <div class="control-group">
+                    <span class="control-label">도구:</span>
+                    <button class="tool-btn active" id="penTool" onclick="setFreeTool('pen')">✏️ 펜</button>
+                    <button class="tool-btn" id="eraserTool" onclick="setFreeTool('eraser')">🧹 지우개</button>
+                    <button class="tool-btn" id="fillTool" onclick="setFreeTool('fill')">🪣 채우기</button>
+                </div>
+
+                <div class="control-group">
+                    <button class="toggle-btn active" id="gridToggle" onclick="toggleGrid()">격자 켜짐</button>
+                </div>
+            </div>
+
+            <!-- 캔버스 -->
+            <div class="canvas-container">
+                <canvas id="canvas-freeplay" width="400" height="400"></canvas>
+            </div>
+
+            <!-- 하단 버튼 -->
+            <div class="button-group">
+                <button class="action-btn" onclick="undoFreeplay()">↶ 취소</button>
+                <button class="action-btn" onclick="redoFreeplay()">↷ 다시</button>
+                <button class="action-btn" onclick="clearFreeplay()">전체 지우기</button>
+                <button class="action-btn" style="background: #10b981;" onclick="downloadCanvasImage(canvasFreeplay, 'freeplay.png')">📥 PNG 다운</button>
+            </div>
+
+            <div class="info-text">
+                마우스 좌클릭으로 픽셀을 칠하세요!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 탭 전환
+        function switchTab(tabName) {
+            // 모든 탭 숨기기
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            // 모든 탭 버튼 비활성화
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // 선택된 탭 표시
+            document.getElementById(tabName).classList.add('active');
+
+            // 선택된 버튼 활성화
+            event.target.classList.add('active');
+
+            // 캔버스 재그리기 (필요한 경우)
+            if (tabName === 'freeplay') {
+                drawFreeplay();
+            } else if (tabName === 'mission1') {
+                drawMission1();
+            } else if (tabName === 'mission2') {
+                drawMission2();
+            }
+        }
+
+        // ============ 미션 1 ============
+        const mission1Pattern = [
+            [3, 1, 1, 3, 3, 1, 1, 3],
+            [3, 1, 1, 1, 1, 1, 1, 3],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [3, 1, 1, 1, 1, 1, 1, 3],
+            [3, 3, 1, 1, 1, 1, 3, 3]
+        ];
+
+        const mission1ColorMap = {
+            1: '#ff6b6b',
+            3: '#ffffff'
+        };
+
+        let mission1Data = Array(8).fill(null).map(() => Array(8).fill(0));
+        let mission1SelectedColor = null;
+        let mission1Feedback = '';
+        let mission1FeedbackTime = 0;
+        let mission1Celebrating = false;
+        let mission1CelebrationStart = 0;
+        let mission1Particles = [];
+        const canvasMission1 = document.getElementById('canvas-mission1');
+        const ctxMission1 = canvasMission1.getContext('2d');
+        const pixelSizeMission1 = 40;
+
+        function drawMission1() {
+            // 배경
+            ctxMission1.fillStyle = '#ffffff';
+            ctxMission1.fillRect(0, 0, canvasMission1.width, canvasMission1.height);
+
+            // 숫자와 격자
+            for (let y = 0; y < 8; y++) {
+                for (let x = 0; x < 8; x++) {
+                    const value = mission1Data[y][x];
+                    if (value !== 0) {
+                        ctxMission1.fillStyle = mission1ColorMap[value] || '#ffffff';
+                        ctxMission1.fillRect(x * pixelSizeMission1, y * pixelSizeMission1, pixelSizeMission1, pixelSizeMission1);
+                    }
+
+                    // 패턴 번호 표시
+                    const patternNum = mission1Pattern[y][x];
+                    ctxMission1.fillStyle = value === 0 ? '#999' : '#333';
+                    ctxMission1.font = 'bold 16px Arial';
+                    ctxMission1.textAlign = 'center';
+                    ctxMission1.textBaseline = 'middle';
+                    ctxMission1.fillText(patternNum, x * pixelSizeMission1 + pixelSizeMission1 / 2, y * pixelSizeMission1 + pixelSizeMission1 / 2);
+                }
+            }
+
+            // 격자
+            ctxMission1.strokeStyle = '#ddd';
+            ctxMission1.lineWidth = 1;
+            for (let i = 0; i <= 8; i++) {
+                ctxMission1.beginPath();
+                ctxMission1.moveTo(i * pixelSizeMission1, 0);
+                ctxMission1.lineTo(i * pixelSizeMission1, canvasMission1.height);
+                ctxMission1.stroke();
+
+                ctxMission1.beginPath();
+                ctxMission1.moveTo(0, i * pixelSizeMission1);
+                ctxMission1.lineTo(canvasMission1.width, i * pixelSizeMission1);
+                ctxMission1.stroke();
+            }
+
+            // 축하 파티클 그리기
+            if (mission1Celebrating) {
+                const elapsed = Date.now() - mission1CelebrationStart;
+                if (elapsed < 3000) {
+                    mission1Particles.forEach(p => {
+                        ctxMission1.font = '24px Arial';
+                        ctxMission1.textAlign = 'center';
+                        ctxMission1.fillText(p.emoji, p.x, p.y);
+                    });
+                } else {
+                    mission1Celebrating = false;
+                }
+            }
+        }
+
+        function selectMission1Color(colorNum) {
+            mission1SelectedColor = colorNum;
+            document.querySelectorAll('#mission1 .color-select-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            mission1Feedback = '';
+        }
+
+        function checkMission1Complete() {
+            for (let y = 0; y < 8; y++) {
+                for (let x = 0; x < 8; x++) {
+                    if (mission1Data[y][x] !== mission1Pattern[y][x]) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function startMission1Celebration() {
+            mission1Celebrating = true;
+            mission1CelebrationStart = Date.now();
+            mission1Particles = [];
+            mission1Feedback = '🎉 완성했어요! 축하합니다! 🎉';
+
+            // 파티클 생성
+            for (let i = 0; i < 30; i++) {
+                mission1Particles.push({
+                    x: Math.random() * canvasMission1.width,
+                    y: -20,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: Math.random() * 3 + 2,
+                    emoji: ['🌸', '🌼', '✨', '🌺', '💐'][Math.floor(Math.random() * 5)],
+                    life: 1
+                });
+            }
+        }
+
+        canvasMission1.addEventListener('click', (e) => {
+            if (mission1SelectedColor === null) {
+                mission1Feedback = '⬆️ 먼저 색을 선택하세요!';
+                mission1FeedbackTime = Date.now();
+                return;
+            }
+
+            const rect = canvasMission1.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / pixelSizeMission1);
+            const y = Math.floor((e.clientY - rect.top) / pixelSizeMission1);
+
+            if (x >= 0 && x < 8 && y >= 0 && y < 8) {
+                const patternNum = mission1Pattern[y][x];
+                if (patternNum === mission1SelectedColor) {
+                    mission1Data[y][x] = mission1Pattern[y][x];
+                    mission1Feedback = '✅ 정답!';
+                    drawMission1();
+
+                    // 완성 확인
+                    setTimeout(() => {
+                        if (checkMission1Complete()) {
+                            startMission1Celebration();
+                        }
+                    }, 100);
+                } else {
+                    mission1Feedback = `❌ 이 칸은 ${patternNum}번이에요! 색을 다시 선택해보세요.`;
+                }
+                mission1FeedbackTime = Date.now();
+            }
+        });
+
+        function clearMission1() {
+            mission1Data = Array(8).fill(null).map(() => Array(8).fill(0));
+            drawMission1();
+        }
+
+        function resetMission1() {
+            mission1Data = mission1Pattern.map(row => [...row]);
+            drawMission1();
+        }
+
+        // ============ 미션 2 ============
+        let mission2SelectedColor = null;
+        let mission2Feedback = '';
+        let mission2FeedbackTime = 0;
+        let mission2Celebrating = false;
+        let mission2CelebrationStart = 0;
+        let mission2Particles = [];
+
+        const mission2Pattern = [
+            [0, 0, 0, 4, 4, 4, 4, 4, 0, 0, 0],
+            [0, 0, 4, 4, 4, 4, 4, 4, 4, 0, 0],
+            [0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0],
+            [4, 4, 4, 1, 1, 4, 1, 1, 4, 4, 4],
+            [4, 4, 4, 1, 1, 4, 1, 1, 4, 4, 4],
+            [4, 4, 4, 4, 4, 2, 4, 4, 4, 4, 4],
+            [4, 4, 1, 4, 4, 4, 4, 4, 1, 4, 4],
+            [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            [4, 4, 4, 5, 5, 5, 5, 5, 4, 4, 4],
+            [4, 4, 4, 5, 5, 5, 5, 5, 4, 4, 4],
+            [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+        ];
+
+        const mission2ColorMap = {
+            1: '#ff6b6b',
+            2: '#000000',
+            3: '#ffffff',
+            4: '#FFA500',
+            5: '#10b981'
+        };
+
+        let mission2Data = Array(11).fill(null).map(() => Array(11).fill(0));
+        const canvasMission2 = document.getElementById('canvas-mission2');
+        const ctxMission2 = canvasMission2.getContext('2d');
+        const pixelSizeMission2 = 29;
+
+        function drawMission2() {
+            ctxMission2.fillStyle = '#ffffff';
+            ctxMission2.fillRect(0, 0, canvasMission2.width, canvasMission2.height);
+
+            for (let y = 0; y < 11; y++) {
+                for (let x = 0; x < 11; x++) {
+                    const value = mission2Data[y][x];
+                    if (value !== 0) {
+                        ctxMission2.fillStyle = mission2ColorMap[value] || '#ffffff';
+                        ctxMission2.fillRect(x * pixelSizeMission2, y * pixelSizeMission2, pixelSizeMission2, pixelSizeMission2);
+                    }
+
+                    const patternNum = mission2Pattern[y][x];
+                    if (patternNum !== 0) {
+                        ctxMission2.fillStyle = value === 0 ? '#999' : '#333';
+                        ctxMission2.font = 'bold 12px Arial';
+                        ctxMission2.textAlign = 'center';
+                        ctxMission2.textBaseline = 'middle';
+                        ctxMission2.fillText(patternNum, x * pixelSizeMission2 + pixelSizeMission2 / 2, y * pixelSizeMission2 + pixelSizeMission2 / 2);
+                    }
+                }
+            }
+
+            ctxMission2.strokeStyle = '#ddd';
+            ctxMission2.lineWidth = 1;
+            for (let i = 0; i <= 11; i++) {
+                ctxMission2.beginPath();
+                ctxMission2.moveTo(i * pixelSizeMission2, 0);
+                ctxMission2.lineTo(i * pixelSizeMission2, canvasMission2.height);
+                ctxMission2.stroke();
+
+                ctxMission2.beginPath();
+                ctxMission2.moveTo(0, i * pixelSizeMission2);
+                ctxMission2.lineTo(canvasMission2.width, i * pixelSizeMission2);
+                ctxMission2.stroke();
+            }
+
+            // 축하 파티클 그리기
+            if (mission2Celebrating) {
+                const elapsed = Date.now() - mission2CelebrationStart;
+                if (elapsed < 3000) {
+                    mission2Particles.forEach(p => {
+                        ctxMission2.font = '24px Arial';
+                        ctxMission2.textAlign = 'center';
+                        ctxMission2.fillText(p.emoji, p.x, p.y);
+                    });
+                } else {
+                    mission2Celebrating = false;
+                }
+            }
+        }
+
+        function selectMission2Color(colorNum) {
+            mission2SelectedColor = colorNum;
+            document.querySelectorAll('#mission2 .color-select-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            mission2Feedback = '';
+        }
+
+        function checkMission2Complete() {
+            for (let y = 0; y < 11; y++) {
+                for (let x = 0; x < 11; x++) {
+                    const patternNum = mission2Pattern[y][x];
+                    if (patternNum !== 0 && mission2Data[y][x] !== patternNum) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function startMission2Celebration() {
+            mission2Celebrating = true;
+            mission2CelebrationStart = Date.now();
+            mission2Particles = [];
+            mission2Feedback = '🎉 완성했어요! 축하합니다! 🎉';
+
+            // 파티클 생성
+            for (let i = 0; i < 40; i++) {
+                mission2Particles.push({
+                    x: Math.random() * canvasMission2.width,
+                    y: -20,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: Math.random() * 3 + 2,
+                    emoji: ['🌸', '🌼', '✨', '🌺', '💐', '🎊'][Math.floor(Math.random() * 6)],
+                    life: 1
+                });
+            }
+        }
+
+        canvasMission2.addEventListener('click', (e) => {
+            if (mission2SelectedColor === null) {
+                mission2Feedback = '⬆️ 먼저 색을 선택하세요!';
+                mission2FeedbackTime = Date.now();
+                return;
+            }
+
+            const rect = canvasMission2.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / pixelSizeMission2);
+            const y = Math.floor((e.clientY - rect.top) / pixelSizeMission2);
+
+            if (x >= 0 && x < 11 && y >= 0 && y < 11) {
+                const patternNum = mission2Pattern[y][x];
+                if (patternNum === 0) {
+                    mission2Feedback = '❌ 여기는 칠할 수 없어요!';
+                } else if (patternNum === mission2SelectedColor) {
+                    mission2Data[y][x] = mission2Pattern[y][x];
+                    mission2Feedback = '✅ 정답!';
+                    drawMission2();
+
+                    // 완성 확인
+                    setTimeout(() => {
+                        if (checkMission2Complete()) {
+                            startMission2Celebration();
+                        }
+                    }, 100);
+                } else {
+                    mission2Feedback = `❌ 이 칸은 ${patternNum}번이에요! 색을 다시 선택해보세요.`;
+                }
+                mission2FeedbackTime = Date.now();
+            }
+        });
+
+        function clearMission2() {
+            mission2Data = Array(11).fill(null).map(() => Array(11).fill(0));
+            drawMission2();
+        }
+
+        function resetMission2() {
+            mission2Data = mission2Pattern.map(row => [...row]);
+            drawMission2();
+        }
+
+        // ============ 자유창작 ============
+        const colors = [
+            '#000000', '#FFFFFF', '#FF0000', '#0000FF', '#00FF00', '#FFFF00',
+            '#FF00FF', '#00FFFF', '#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3',
+            '#FF8C42', '#A569BD', '#FF69B4', '#8B4513', '#FFA500', '#CCCCCC',
+            '#A9A9A9', '#87CEEB'
+        ];
+
+        let freeplayGridSize = 16;
+        let freeplayPixelSize = 25;
+        let freeplayCurrentColor = '#000000';
+        let freeplayShowGrid = true;
+        let freeplayIsDrawing = false;
+        let freeplayCurrentTool = 'pen';
+        let freeplayPixelData = {};
+        let freeplayHistory = [{}];
+        let freeplayHistoryIndex = 0;
+
+        const canvasFreeplay = document.getElementById('canvas-freeplay');
+        const ctxFreeplay = canvasFreeplay.getContext('2d');
+
+        function createColorPalette() {
+            const palette = document.getElementById('colorPalette');
+            palette.innerHTML = '';
+            colors.forEach(color => {
+                const btn = document.createElement('button');
+                btn.className = 'color-btn';
+                if (color === freeplayCurrentColor) btn.classList.add('active');
+                btn.style.background = color;
+                btn.onclick = () => selectFreeplayColor(color, btn);
+                palette.appendChild(btn);
+            });
+        }
+
+        function selectFreeplayColor(color, btn) {
+            freeplayCurrentColor = color;
+            document.querySelectorAll('#colorPalette .color-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function changeFreeplaySize(size) {
+            freeplayGridSize = size;
+            freeplayPixelSize = 400 / size;
+            freeplayPixelData = {};
+            freeplayHistory = [{}];
+            freeplayHistoryIndex = 0;
+
+            document.querySelectorAll('#freeplay .size-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            drawFreeplay();
+        }
+
+        function setFreeTool(tool) {
+            freeplayCurrentTool = tool;
+            document.querySelectorAll('#freeplay .tool-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function toggleGrid() {
+            freeplayShowGrid = !freeplayShowGrid;
+            document.getElementById('gridToggle').classList.toggle('active');
+            document.getElementById('gridToggle').textContent = freeplayShowGrid ? '격자 켜짐' : '격자 꺼짐';
+            drawFreeplay();
+        }
+
+        function drawFreeplay() {
+            ctxFreeplay.fillStyle = '#FFFFFF';
+            ctxFreeplay.fillRect(0, 0, canvasFreeplay.width, canvasFreeplay.height);
+
+            for (const key in freeplayPixelData) {
+                const [x, y] = key.split(',').map(Number);
+                ctxFreeplay.fillStyle = freeplayPixelData[key];
+                ctxFreeplay.fillRect(x * freeplayPixelSize, y * freeplayPixelSize, freeplayPixelSize, freeplayPixelSize);
+            }
+
+            if (freeplayShowGrid) {
+                ctxFreeplay.strokeStyle = '#E5E7EB';
+                ctxFreeplay.lineWidth = 1;
+                for (let i = 0; i <= freeplayGridSize; i++) {
+                    ctxFreeplay.beginPath();
+                    ctxFreeplay.moveTo(i * freeplayPixelSize, 0);
+                    ctxFreeplay.lineTo(i * freeplayPixelSize, canvasFreeplay.height);
+                    ctxFreeplay.stroke();
+
+                    ctxFreeplay.beginPath();
+                    ctxFreeplay.moveTo(0, i * freeplayPixelSize);
+                    ctxFreeplay.lineTo(canvasFreeplay.width, i * freeplayPixelSize);
+                    ctxFreeplay.stroke();
+                }
+            }
+        }
+
+        function saveFreeplayToHistory() {
+            freeplayHistory = freeplayHistory.slice(0, freeplayHistoryIndex + 1);
+            freeplayHistory.push(JSON.parse(JSON.stringify(freeplayPixelData)));
+            freeplayHistoryIndex++;
+        }
+
+        function drawFreeplayPixel(x, y) {
+            if (x >= 0 && x < freeplayGridSize && y >= 0 && y < freeplayGridSize) {
+                const key = `${x},${y}`;
+                if (freeplayCurrentTool === 'eraser') {
+                    delete freeplayPixelData[key];
+                } else {
+                    freeplayPixelData[key] = freeplayCurrentColor;
+                }
+                drawFreeplay();
+            }
+        }
+
+        function floodFillFreeplay(startX, startY) {
+            const key = `${startX},${startY}`;
+            const targetColor = freeplayPixelData[key] || '#FFFFFF';
+            if (targetColor === freeplayCurrentColor) return;
+
+            const stack = [[startX, startY]];
+            const visited = new Set();
+
+            while (stack.length > 0) {
+                const [x, y] = stack.pop();
+                const currentKey = `${x},${y}`;
+                if (visited.has(currentKey)) continue;
+                if (x < 0 || x >= freeplayGridSize || y < 0 || y >= freeplayGridSize) continue;
+
+                const pixelColor = freeplayPixelData[currentKey] || '#FFFFFF';
+                if (pixelColor !== targetColor) continue;
+
+                visited.add(currentKey);
+                freeplayPixelData[currentKey] = freeplayCurrentColor;
+                stack.push([x + 1, y]);
+                stack.push([x - 1, y]);
+                stack.push([x, y + 1]);
+                stack.push([x, y - 1]);
+            }
+            drawFreeplay();
+        }
+
+        function getFreplayPixelCoords(e) {
+            const rect = canvasFreeplay.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / freeplayPixelSize);
+            const y = Math.floor((e.clientY - rect.top) / freeplayPixelSize);
+            if (x >= 0 && x < freeplayGridSize && y >= 0 && y < freeplayGridSize) {
+                return { x, y };
+            }
+            return null;
+        }
+
+        canvasFreeplay.addEventListener('mousedown', (e) => {
+            freeplayIsDrawing = true;
+            const coords = getFreplayPixelCoords(e);
+            if (coords) {
+                if (freeplayCurrentTool === 'pen' || freeplayCurrentTool === 'eraser') {
+                    drawFreeplayPixel(coords.x, coords.y);
+                } else if (freeplayCurrentTool === 'fill') {
+                    floodFillFreeplay(coords.x, coords.y);
+                    saveFreeplayToHistory();
+                }
+            }
+        });
+
+        canvasFreeplay.addEventListener('mousemove', (e) => {
+            if (freeplayIsDrawing && (freeplayCurrentTool === 'pen' || freeplayCurrentTool === 'eraser')) {
+                const coords = getFreplayPixelCoords(e);
+                if (coords) drawFreeplayPixel(coords.x, coords.y);
+            }
+        });
+
+        canvasFreeplay.addEventListener('mouseup', () => {
+            if (freeplayIsDrawing && (freeplayCurrentTool === 'pen' || freeplayCurrentTool === 'eraser')) {
+                saveFreeplayToHistory();
+            }
+            freeplayIsDrawing = false;
+        });
+
+        function undoFreeplay() {
+            if (freeplayHistoryIndex > 0) {
+                freeplayHistoryIndex--;
+                freeplayPixelData = JSON.parse(JSON.stringify(freeplayHistory[freeplayHistoryIndex]));
+                drawFreeplay();
+            }
+        }
+
+        function redoFreeplay() {
+            if (freeplayHistoryIndex < freeplayHistory.length - 1) {
+                freeplayHistoryIndex++;
+                freeplayPixelData = JSON.parse(JSON.stringify(freeplayHistory[freeplayHistoryIndex]));
+                drawFreeplay();
+            }
+        }
+
+        function clearFreeplay() {
+            freeplayPixelData = {};
+            saveFreeplayToHistory();
+            drawFreeplay();
+        }
+
+        // 피드백 업데이트
+        function updateMissionFeedback() {
+            // Mission 1 feedback
+            const feedbackEl = document.getElementById('mission1-feedback');
+            if (feedbackEl) {
+                if (mission1Feedback && Date.now() - mission1FeedbackTime < 3000) {
+                    feedbackEl.textContent = mission1Feedback;
+                } else {
+                    feedbackEl.textContent = '';
+                }
+            }
+
+            // Mission 1 파티클 업데이트
+            if (mission1Celebrating) {
+                mission1Particles.forEach(p => {
+                    p.y += p.vy;
+                    p.x += p.vx;
+                    p.vy += 0.1; // 중력
+                    p.life -= 0.01;
+                });
+                drawMission1();
+            }
+
+            // Mission 2 feedback
+            const feedback2El = document.getElementById('mission2-feedback');
+            if (feedback2El) {
+                if (mission2Feedback && Date.now() - mission2FeedbackTime < 3000) {
+                    feedback2El.textContent = mission2Feedback;
+                } else {
+                    feedback2El.textContent = '';
+                }
+            }
+
+            // Mission 2 파티클 업데이트
+            if (mission2Celebrating) {
+                mission2Particles.forEach(p => {
+                    p.y += p.vy;
+                    p.x += p.vx;
+                    p.vy += 0.1; // 중력
+                    p.life -= 0.01;
+                });
+                drawMission2();
+            }
+
+            requestAnimationFrame(updateMissionFeedback);
+        }
+
+        // PNG 다운로드 함수
+        async function downloadCanvasImage(canvasElement, filename) {
+            canvasElement.toBlob(async (blob) => {
+                try {
+                    const downloads = await claude.use("downloads");
+                    if (downloads) {
+                        await downloads.save({
+                            filename: filename,
+                            data: blob
+                        });
+                    } else {
+                        // 다운로드 기능을 사용할 수 없는 경우, 브라우저 다운로드 사용
+                        const link = document.createElement('a');
+                        link.download = filename;
+                        link.href = URL.createObjectURL(blob);
+                        link.click();
+                        URL.revokeObjectURL(link.href);
+                    }
+                } catch (error) {
+                    console.error('다운로드 실패:', error);
+                    // 오류 발생 시 브라우저 다운로드 시도
+                    const link = document.createElement('a');
+                    link.download = filename;
+                    link.href = URL.createObjectURL(blob);
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                }
+            }, 'image/png');
+        }
+
+        // 초기화
+        createColorPalette();
+        drawFreeplay();
+        drawMission1();
+        drawMission2();
+        updateMissionFeedback();
+    </script>
+</body>
+</html>
